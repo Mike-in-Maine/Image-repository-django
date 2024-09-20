@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <title>Photo Calendar</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container py-5">
+      <h1 class="text-center">Photo Calendar for {{ month }} {{ year }}</h1>
+
+      <!-- Navigation for previous and next months -->
+      <div class="text-center mb-3">
+        <a href="{% url 'calendar_view_with_date' year=prev_year month=prev_month %}" class="btn btn-secondary">&laquo; Previous Month</a>
+        <a href="{% url 'calendar_view_with_date' year=next_year month=next_month %}" class="btn btn-secondary">Next Month &raquo;</a>
+      </div>
+
+
+      <!-- Load the custom lookup template tag -->
+      {% load lookup %}
+
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Sunday</th>
+            <th>Monday</th>
+            <th>Tuesday</th>
+            <th>Wednesday</th>
+            <th>Thursday</th>
+            <th>Friday</th>
+            <th>Saturday</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for week in month_days %}
+            <tr>
+              {% for day in week %}
+                <td>
+                {% if day != 0 %}
+                  <a href="{% url 'photos_by_date' year=year month=month day=day %}">
+                    {{ day }}
+                    {% if day in photos_by_date %}
+                    <span class="badge badge-primary">{{ photos_by_date|lookup:day }} photos</span>
+                    <form action="{% url 'delete_photo' photo.id %}" method="POST">
+                    {% csrf_token %}
+                      <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i>
+                      </button>
+                    </form>
+                    {% endif %}
+                  </a>
+              {% endif %}
+                </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- Navigation for previous and next months -->
+      <div class="text-center mb-3">
+        <a href="{% url 'calendar_view_with_date' year=prev_year month=prev_month %}" class="btn btn-secondary">&laquo; Previous Month</a>
+        <a href="{% url 'calendar_view_with_date' year=next_year month=next_month %}" class="btn btn-secondary">Next Month &raquo;</a>
+      </div>
+
+
+    </div>
+  </body>
+</html>
