@@ -13,9 +13,8 @@ class Category(models.Model):
         return self.name
 
 class Tag(models.Model):
-    name = models.CharField(max_length=50)
-    photo = models.ForeignKey('Photo', related_name='tags', on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, related_name='tags', on_delete=models.CASCADE, null=True)
+    name = models.CharField(max_length=50, unique=True)
+    category = models.ForeignKey(Category, related_name='tags', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -27,6 +26,7 @@ class Photo(models.Model):
     date_taken = models.DateTimeField(blank=True, null=True)
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
+    tags = models.ManyToManyField(Tag, related_name='photos', blank=True)  # ManyToManyField for tags
 
     def save(self, *args, **kwargs):
         self.extract_exif_data()
@@ -45,10 +45,9 @@ class Photo(models.Model):
                 # Extract Date Taken and convert to the proper format
                 if tag_name == "DateTimeOriginal":
                     try:
-                        # Convert from 'YYYY:MM:DD HH:MM:SS' to 'YYYY-MM-DD HH:MM:SS'
                         self.date_taken = datetime.strptime(value, '%Y:%m:%d %H:%M:%S')
                     except ValueError:
-                        self.date_taken = None  # Handle any errors during conversion
+                        self.date_taken = None
 
                 # Extract GPS Info
                 if tag_name == "GPSInfo":
@@ -106,7 +105,6 @@ class Photo(models.Model):
                 elif orientation == 8:
                     img = img.rotate(90, expand=True)
         except (AttributeError, KeyError, IndexError):
-            # In case the image does not have EXIF data or other issues occur
             pass
 
         return img

@@ -17,7 +17,6 @@
         <a href="{% url 'calendar_view_with_date' year=next_year month=next_month %}" class="btn btn-secondary">Next Month &raquo;</a>
       </div>
 
-
       <!-- Load the custom lookup template tag -->
       {% load lookup %}
 
@@ -41,17 +40,14 @@
                 {% if day != 0 %}
                   <a href="{% url 'photos_by_date' year=year month=month day=day %}">
                     {{ day }}
+                    <!-- Display the number of photos for each day -->
                     {% if day in photos_by_date %}
-                    <span class="badge badge-primary">{{ photos_by_date|lookup:day }} photos</span>
-                    <form action="{% url 'delete_photo' photo.id %}" method="POST">
-                    {% csrf_token %}
-                      <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-trash-alt"></i>
-                      </button>
-                    </form>
+                      <span class="badge badge-primary">{{ photos_by_date|lookup:day }} photos</span>
+                    {% else %}
+                      <span class="badge badge-secondary">0 photos</span>
                     {% endif %}
                   </a>
-              {% endif %}
+                {% endif %}
                 </td>
               {% endfor %}
             </tr>
@@ -64,7 +60,6 @@
         <a href="{% url 'calendar_view_with_date' year=prev_year month=prev_month %}" class="btn btn-secondary">&laquo; Previous Month</a>
         <a href="{% url 'calendar_view_with_date' year=next_year month=next_month %}" class="btn btn-secondary">Next Month &raquo;</a>
       </div>
-
 
     </div>
   </body>

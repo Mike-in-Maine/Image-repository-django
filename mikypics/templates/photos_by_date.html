@@ -4,37 +4,65 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
-    <title>Photos for {{ date }}</title>
+    <title>Photos for {{ date|date:"F j, Y" }}</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   </head>
   <body>
     <div class="container py-5">
       <h1 class="text-center">Photos for {{ date|date:"F j, Y" }}</h1>
+
       <div class="row">
         {% if photos %}
           {% for photo in photos %}
             <div class="col-md-4">
               <div class="card mb-4 box-shadow">
+
                 <!-- Link to the full-size image -->
                 <a href="{{ photo.image.url }}" target="_blank">
                   <img src="{{ photo.thumbnail_url }}" alt="{{ photo.image.name }}" class="card-img-top">
                 </a>
 
                 <div class="card-body">
-                  <!-- Display Date Taken -->
                   <p class="card-text">Taken on: {{ photo.date_taken|date:"F j, Y, g:i a" }}</p>
+                  <!--<p class="card-text">Uploaded on: {{ photo.uploaded_at|date:"F j, Y, g:i a" }}</p> -->
 
-                  <!-- Display Uploaded Date -->
-                  <p class="card-text">Uploaded on: {{ photo.uploaded_at|date:"F j, Y, g:i a" }}</p>
+                  <!-- Button to open tags modal -->
+                  <button type="button" class="btn btn-info" data-toggle="modal" data-target="#tagsModal{{ photo.id }}">
+                    View Tags
+                  </button>
+
+                  <!-- Modal to show tags -->
+                  <div class="modal fade" id="tagsModal{{ photo.id }}" tabindex="-1" role="dialog" aria-labelledby="tagsModalLabel{{ photo.id }}" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title" id="tagsModalLabel{{ photo.id }}">Tags for this Photo</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <div class="modal-body">
+                          <ul class="list-group">
+                            {% for tag in photo.tags.all %}
+                              <li class="list-group-item">{{ tag.name }}</li>
+                            {% empty %}
+                              <li class="list-group-item">No tags available</li>
+                            {% endfor %}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
                   <!-- Delete button -->
-                  <form action="{% url 'delete_photo' photo.id %}" method="POST">
-                  {% csrf_token %}
+                  <form action="{% url 'delete_photo' photo.id %}" method="POST" style="display:inline;">
+                    {% csrf_token %}
                     <button type="submit" class="btn btn-danger">
-                      <i class="fas fa-trash-alt"></i>
+                      <i class="fas fa-trash-alt"></i> Delete
                     </button>
                   </form>
                 </div>
+
               </div>
             </div>
           {% endfor %}
@@ -44,9 +72,16 @@
           </div>
         {% endif %}
       </div>
+
+      <!-- Back to Calendar Button -->
       <div class="text-center">
         <a href="{% url 'calendar_view' %}" class="btn btn-secondary">Back to Calendar</a>
       </div>
+
     </div>
+
+    <!-- Bootstrap and jQuery Scripts for Modal functionality -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

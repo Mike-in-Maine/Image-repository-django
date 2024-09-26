@@ -35,6 +35,11 @@
             </div>
             <div class="col-sm-4 offset-md-1 py-4">
               <h4 class="text-white">Contact</h4>
+              <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit">Logout</button>
+</form>
+
               <ul class="list-unstyled">
                 <li><a href="#" class="text-white">Follow on Twitter</a></li>
                 <li><a href="#" class="text-white">Like on Facebook</a></li>
@@ -88,7 +93,7 @@
                     {% endif %}
 
                     <!-- Display Uploaded Date -->
-                    <p class="card-text">Uploaded on: {{ photo.uploaded_at|date:"F j, Y, g:i a" }}</p>
+                    <!-- <p class="card-text">Uploaded on: {{ photo.uploaded_at|date:"F j, Y, g:i a" }}</p> -->
 
                     <!-- Delete button -->
 <form action="{% url 'delete_photo' photo.id %}" method="POST">

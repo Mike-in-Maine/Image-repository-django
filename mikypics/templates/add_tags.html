@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <title>Add Tags to {{ photo.image.name }}</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container py-5">
+      <h1 class="text-center">Add Tags to Photo</h1>
+
+      <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+          {{ form.tags.label_tag }}
+          {{ form.tags }}
+        </div>
+        <div class="form-group">
+          {{ form.new_tag.label_tag }}
+          {{ form.new_tag }}
+        </div>
+        <button type="submit" class="btn btn-primary">Save Tags</button>
+      </form>
+
+      <div class="text-center mt-4">
+        <a href="{% url 'photos_by_date' year=photo.date_taken.year month=photo.date_taken.month day=photo.date_taken.day %}" class="btn btn-secondary">Back to Photos</a>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
