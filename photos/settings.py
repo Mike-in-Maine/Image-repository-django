@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-c=s$&lvyhu(7g*nx#7_5pcw#xy%#v#4$#)j6^s+c39&$xrq&3^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'miky.pics', '84.247.178.140','84.247.178.140:22']
+ALLOWED_HOSTS = ['127.0.0.1', 'miky.pics', '84.247.178.140']
 
 
 
@@ -57,7 +57,7 @@ ROOT_URLCONF = 'photos.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -129,6 +129,28 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-LOGIN_URL = 'login'
+LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'  # Redirect to the homepage after login
-LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = '/'
+
+# Email
+# settings.py
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'retiredtotuscany@gmail.com'
+EMAIL_HOST_PASSWORD = 'itff2022'
+# Twilio code: 73SYUZRZD1RXP912VKQ4DYKB
+
+#from django.core.mail import send_mail
+
+#send_mail(
+#    'Test Email',
+#    'This is a test email from Django.',
+#    'retiredtotuscany@gmail.com',  # From email
+#    ['retiredtotuscany@gmail.com'],  # To email
+#    fail_silently=False,
+#)
+
