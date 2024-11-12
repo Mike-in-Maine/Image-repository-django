@@ -1,0 +1,17 @@
+.icon-class {
+    width: 24px;
+    height: 24px;
+}
+
+.inline-form {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 10px; /* Adjust as needed */
+}
+
+.inline-form button {
+    border: none;
+    background: none;
+    padding: 0;
+}
+
