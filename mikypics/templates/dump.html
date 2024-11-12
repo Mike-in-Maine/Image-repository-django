@@ -1,0 +1,40 @@
+<div class="album py-5 bg-light">
+        <div class="container">
+          <div class="row">
+            {% for photo in photos %}
+              <div class="col-md-4">
+                <div class="card mb-4 box-shadow">
+                  <!-- Link to full-size image -->
+                  <a href="{{ photo.image.url }}" target="_blank">
+                    <img src="{{ photo.thumbnail_url }}" alt="{{ photo.image.name }}" class="card-img-top">
+                  </a>
+
+                  <div class="card-body">
+                    <!-- Display Date Taken -->
+                    <p class="card-text">Taken on: {{ photo.date_taken|date:"F j, Y, g:i a" }}</p>
+
+                    <!-- Display Geolocation (if available) -->
+                    {% if photo.latitude and photo.longitude %}
+                      <p class="card-text">Location: {{ photo.latitude }}, {{ photo.longitude }}</p>
+                    {% else %}
+                      <p class="card-text">Location: Not Available</p>
+                    {% endif %}
+
+                    <!-- Display Uploaded Date -->
+                    <!-- <p class="card-text">Uploaded on: {{ photo.uploaded_at|date:"F j, Y, g:i a" }}</p> -->
+
+                    <!-- Delete button -->
+<form action="{% url 'delete_photo' photo.id %}" method="POST">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">
+    <i class="fas fa-trash-alt"></i>
+  </button>
+</form>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+

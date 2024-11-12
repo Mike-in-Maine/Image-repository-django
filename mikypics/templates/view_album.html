@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/icons.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% if user.is_authenticated %}
+<h2>{{ album.name }}</h2>
+<p>{{ album.description }}</p>
+
+<div class="container">
+  <div class="row">
+    {% for photo in photos %}
+      <div class="col-md-3">
+          <a href="{{ photo.image.url }}" target="_blank">
+              <img src="{{ photo.thumbnail.url }}" alt="Photo" class="img-thumbnail"></a>
+      </div>
+      <form action="{% url 'delete_album' album.id %}" method="POST" style="display: inline-flex; align-items: center;">
+        {% csrf_token %}
+        <button type="submit" style="border: none; background: none; padding: 0;"
+                onclick="return confirm('Are you sure you want to delete this album?');">
+            <img src="{% static 'icons/trash.png' %}" alt="Delete" class="icon-class">
+        </button>
+    </form>
+    {% empty %}
+      <p>No photos in this album.</p>
+    {% endfor %}
+  </div>
+</div>
+        <div class="text-center">
+            <a href="{% url 'user_albums' %}" class="btn btn-secondary">Back to Albums</a>
+        </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const albumSelectElements = document.querySelectorAll('[id^="albumSelect-"]');
+
+    albumSelectElements.forEach(select => {
+        select.addEventListener('change', function(event) {
+            if (event.target.value === 'new_album') {
+                // Trigger the Bootstrap modal for creating a new album
+                $('#createAlbumModal').modal('show');
+            }
+        });
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

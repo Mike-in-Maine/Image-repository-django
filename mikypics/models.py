@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from PIL import Image, ExifTags
 from PIL.ExifTags import TAGS, GPSTAGS
@@ -5,12 +6,18 @@ import io
 from django.core.files.base import ContentFile
 from pathlib import Path
 from datetime import datetime
+from django.conf import settings
+from django.contrib.auth.models import User
 
+def user_directory_path(instance, filename):
+    # File will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return f'user_{instance.user.id}/{filename}'
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
+
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
@@ -19,18 +26,22 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
+
 class Photo(models.Model):
-    image = models.ImageField(upload_to='images/')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='photos')  # Add this line
+    image = models.ImageField(upload_to=user_directory_path)
     thumbnail = models.ImageField(upload_to='thumbnails/', blank=True, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     date_taken = models.DateTimeField(blank=True, null=True)
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
-    tags = models.ManyToManyField(Tag, related_name='photos', blank=True)  # ManyToManyField for tags
+    location_name = models.CharField(max_length=255, blank=True, null=True)
+    tags = models.ManyToManyField(Tag, related_name='photos', blank=True)
+
 
     def save(self, *args, **kwargs):
-        self.extract_exif_data()
-        if not self.thumbnail:  # Only create a thumbnail if one doesn't exist
+        if not self.pk or not self.thumbnail:
+            self.extract_exif_data()
             self.create_thumbnail()
         super().save(*args, **kwargs)
 
@@ -42,14 +53,12 @@ class Photo(models.Model):
             for tag, value in exif_data.items():
                 tag_name = ExifTags.TAGS.get(tag, tag)
 
-                # Extract Date Taken and convert to the proper format
                 if tag_name == "DateTimeOriginal":
                     try:
                         self.date_taken = datetime.strptime(value, '%Y:%m:%d %H:%M:%S')
                     except ValueError:
                         self.date_taken = None
 
-                # Extract GPS Info
                 if tag_name == "GPSInfo":
                     gps_info = {}
                     for key in value.keys():
@@ -74,15 +83,14 @@ class Photo(models.Model):
         return None, None
 
     def create_thumbnail(self):
+        THUMBNAIL_SIZE = getattr(settings, 'THUMBNAIL_SIZE', (200, 200))
         img = Image.open(self.image)
-
-        # Automatically rotate the image based on EXIF orientation
         img = self.correct_orientation(img)
 
-        img.thumbnail((200, 200))  # Define the size of the thumbnail
+        img.thumbnail(THUMBNAIL_SIZE, Image.LANCZOS)
 
         thumb_io = io.BytesIO()
-        img.save(thumb_io, format='JPEG')
+        img.save(thumb_io, format='JPEG', quality=95)
 
         thumb_name = f"thumb_{Path(self.image.name).stem}.jpg"
         self.thumbnail.save(thumb_name, ContentFile(thumb_io.getvalue()), save=False)
@@ -114,3 +122,14 @@ class Photo(models.Model):
         if self.thumbnail:
             return self.thumbnail.url
         return self.image.url
+
+
+class Album(models.Model):
+    name = models.CharField(max_length=200)  # Album name, like "Family Vacation 2023"
+    description = models.TextField(blank=True, null=True)  # Optional album description
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='albums')
+    created_at = models.DateTimeField(auto_now_add=True)  # When the album was created
+    photos = models.ManyToManyField('Photo', related_name='albums')
+
+    def __str__(self):
+        return self.name

@@ -1,0 +1,66 @@
+{% extends 'base.html' %}  <!-- Assuming base.html has the proper HTML structure including <head> -->
+
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/icons.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>Upload Your Photos</h1>
+<div id="drop-zone" style="border: 2px dashed #ccc; padding: 20px; text-align: center;">
+    <p>Drag and drop your photos here, or click to select files.</p>
+    <input type="file" id="file-input" multiple style="display: none;">
+</div>
+
+<div id="upload-status"></div>
+
+<script>
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+    const uploadStatus = document.getElementById('upload-status');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
+    });
+
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        handleFiles(files);
+    });
+
+    fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+    function handleFiles(files) {
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+            formData.append('photos', files[i]);
+        }
+
+        fetch("{% url 'upload_photos' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            uploadStatus.innerHTML = `<p>${data.message}</p>`;
+            if (data.success) {
+                window.location.href = "{% url 'calendar_view' %}";
+            }
+        })
+        .catch(error => {
+            uploadStatus.innerHTML = `<p>Error uploading photos.</p>`;
+        });
+    }
+</script>
+{% endblock %}

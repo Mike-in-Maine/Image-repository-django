@@ -1,114 +1,67 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="/docs/4.0/assets/img/favicons/favicon.ico">
+{% extends 'base.html' %}
 
-    <title>Album example for Bootstrap</title>
-
-    <link rel="canonical" href="https://getbootstrap.com/docs/4.0/examples/album/">
-
-    <!-- Bootstrap core CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="album.css" rel="stylesheet">
-
-      <!-- Add Font Awesome CDN for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <!-- Other existing meta and links -->
-
-  </head>
-
-  <body>
-
-    <header>
-      <div class="collapse bg-dark" id="navbarHeader">
-        <div class="container">
-          <div class="row">
-            <div class="col-sm-8 col-md-7 py-4">
-              <h4 class="text-white">About</h4>
-              <p class="text-muted">Add some information about the album below, the author, or any other background context.</p>
-            </div>
-            <div class="col-sm-4 offset-md-1 py-4">
-              <h4 class="text-white">Contact</h4>
-              <form method="post" action="{% url 'logout' %}">
-    {% csrf_token %}
-    <button type="submit">Logout</button>
-</form>
-
-              <ul class="list-unstyled">
-                <li><a href="#" class="text-white">Follow on Twitter</a></li>
-                <li><a href="#" class="text-white">Like on Facebook</a></li>
-                <li><a href="#" class="text-white">Email me</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="navbar navbar-dark bg-dark box-shadow">
-        <div class="container d-flex justify-content-between">
-          <a href="#" class="navbar-brand d-flex align-items-center">
-            <strong>Album</strong>
-          </a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarHeader" aria-controls="navbarHeader" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-        </div>
-      </div>
-    </header>
+{% block content %}
 
     <main role="main">
 
       <section class="jumbotron text-center">
         <div class="container">
-          <h1 class="jumbotron-heading">Album example</h1>
-          <p class="lead text-muted">Short and sweet description of your album here.</p>
+          <h1 class="jumbotron-heading">Miky's Photos</h1>
+          <p class="lead text-muted">
+            <a href="login" class="btn btn-primary">Log in Here</a>
+          </p>
+          <p class="lead text-muted">
+            Don't have a log in? <a href="{% url 'signup' %}">Register here</a>. Once approved, you will receive access. It might take 24-48 hours
+          </p>
         </div>
       </section>
 
-      <div class="album py-5 bg-light">
-        <div class="container">
-          <div class="row">
-            {% for photo in photos %}
-              <div class="col-md-4">
-                <div class="card mb-4 box-shadow">
-                  <!-- Link to full-size image -->
-                  <a href="{{ photo.image.url }}" target="_blank">
-                    <img src="{{ photo.thumbnail_url }}" alt="{{ photo.image.name }}" class="card-img-top">
-                  </a>
-
-                  <div class="card-body">
-                    <!-- Display Date Taken -->
-                    <p class="card-text">Taken on: {{ photo.date_taken|date:"F j, Y, g:i a" }}</p>
-
-                    <!-- Display Geolocation (if available) -->
-                    {% if photo.latitude and photo.longitude %}
-                      <p class="card-text">Location: {{ photo.latitude }}, {{ photo.longitude }}</p>
+      {% if user.is_authenticated %}
+      <div class="container">
+        <div class="row">
+          <!-- Latest Calendar Day Section -->
+          <div class="col-md-6">
+            {% if latest_day_photo %}
+              <div class="card mb-4 box-shadow">
+                <img class="card-img-top" src="{{ latest_day_photo.image.url }}" alt="Latest Photo" style="height: 300px; width: 100%; object-fit: cover;">
+                <div class="card-body">
+                  <p class="card-text">Recent photos from: {{ latest_date|date:"F d, Y" }}<br>
+                    {% if latest_day_photo.latitude and latest_day_photo.longitude %}
+                      Location: Latitude {{ latest_day_photo.latitude }}, Longitude {{ latest_day_photo.longitude }}
                     {% else %}
-                      <p class="card-text">Location: Not Available</p>
+                      Location: Unknown
                     {% endif %}
-
-                    <!-- Display Uploaded Date -->
-                    <!-- <p class="card-text">Uploaded on: {{ photo.uploaded_at|date:"F j, Y, g:i a" }}</p> -->
-
-                    <!-- Delete button -->
-<form action="{% url 'delete_photo' photo.id %}" method="POST">
-  {% csrf_token %}
-  <button type="submit" class="btn btn-danger">
-    <i class="fas fa-trash-alt"></i>
-  </button>
-</form>
-                  </div>
+                  </p>
+                  <p>Debug: Latest Day Photo URL: {{ latest_day_photo.image.url }}</p>
                 </div>
               </div>
-            {% endfor %}
+            {% else %}
+              <p>No recent photos available.</p>
+            {% endif %}
+          </div>
+
+          <!-- Random Album Section -->
+          <div class="col-md-6">
+            {% if random_album_photo %}
+              <div class="card mb-4 box-shadow">
+                <img class="card-img-top" src="{{ random_album_photo.image.url }}" alt="Random Album Photo" style="height: 300px; width: 100%; object-fit: cover;">
+                <div class="card-body">
+                  <p class="card-text">Random Album (Category) from: {{ random_album_photo.date_taken|date:"F d, Y" }}<br>
+                    {% if random_album_photo.latitude and random_album_photo.longitude %}
+                      Location: Latitude {{ random_album_photo.latitude }}, Longitude {{ random_album_photo.longitude }}
+                    {% else %}
+                      Location: Unknown
+                    {% endif %}
+                  </p>
+                </div>
+              </div>
+            {% else %}
+              <p>No photos in random album available.</p>
+            {% endif %}
           </div>
         </div>
       </div>
+      {% endif %}
 
     </main>
 
@@ -117,7 +70,7 @@
         <p class="float-right">
           <a href="#">Back to top</a>
         </p>
-        <p>Album example is &copy; Bootstrap. Please download and customize it for yourself!</p>
+        <p>Welcome to miky.pics.</p>
       </div>
     </footer>
 
@@ -125,5 +78,5 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-  </body>
-</html>
+
+{% endblock %}
